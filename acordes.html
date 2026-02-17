@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letras con Acordes | Acordes Rafa</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="Fondoapp.png">
+    <style>
+        /* Protección contra copia */
+        body {
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Buscador */
+        .search-container {
+            padding: 150px 20px 20px;
+            background: #fff;
+            text-align: center;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .search-box:focus {
+            border-color: var(--stripe-blue);
+            box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
+        }
+
+        .chords-explorer {
+            padding: 20px 20px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 80vh;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 10px 25px;
+            border-radius: 30px;
+            border: 1px solid #eee;
+            background: white;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .tab-btn.active {
+            background: var(--stripe-blue);
+            color: white;
+            border-color: var(--stripe-blue);
+        }
+
+        /* Layout */
+        .explorer-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .songs-list-container {
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #eee;
+            background: #fdfdfd;
+        }
+
+        .songs-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .list-header {
+            padding: 15px 20px;
+            background: #f8faff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--stripe-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .song-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f9f9f9;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+
+        .song-item:hover {
+            background: #f0f4ff;
+        }
+
+        .song-item.active {
+            background: #eef2ff;
+            border-left: 4px solid var(--stripe-blue);
+            color: var(--stripe-blue);
+            font-weight: 600;
+        }
+
+        /* Visor de contenido */
+        .chord-viewer-container {
+            padding: 20px 40px; /* Reducido de 60px para pegar el título arriba */
+            position: relative;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 600px;
+        }
+
+        .viewer-placeholder {
+            text-align: center;
+            color: #ccc;
+            margin-top: 150px;
+        }
+
+        .protected-content {
+            width: 100%;
+            max-width: 850px; /* Un poco más ancho para mejor lectura */
+            background: #fff;
+            padding: 20px 40px; /* Reducido de 50px */
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            display: none;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .song-title-display {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .protection-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0);
+            z-index: 10;
+        }
+
+        @media (max-width: 900px) {
+            .explorer-layout {
+                grid-template-columns: 1fr;
+            }
+            .songs-list-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <img src="Fondoapp.png" alt="Icono">
+                Acordes Rafa
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#inicio">Inicio</a></li>
+                <li><a href="acordes.html" class="active">Letras con Acordes</a></li>
+                <li><a href="index.html#apps">Apps</a></li>
+                <li><a href="index.html#lecciones">Lecciones</a></li>
+                <li><a href="index.html#sobre-mi">Sobre mí</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-box" placeholder="Busca tu canción favorita..." oninput="filterSongs()">
+    </div>
+
+    <main class="chords-explorer">
+        <div class="tabs-container">
+            <button class="tab-btn active" id="btnPopulares" onclick="switchCategory('populares')">Cancionero Popular</button>
+            <button class="tab-btn" id="btnDios" onclick="switchCategory('dios')">Cantos para Dios</button>
+        </div>
+
+        <div class="explorer-layout">
+            <div class="songs-list-container">
+                <div class="list-header" id="listHeaderTitle">Canciones Populares</div>
+                <div class="songs-list" id="songsList">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+
+            <div class="chord-viewer-container">
+                <div id="viewerPlaceholder" class="viewer-placeholder">
+                    <img src="Fondoapp.png" alt="Logo" style="width: 80px; opacity: 0.1; margin-bottom: 20px;">
+                    <p>Selecciona una obra para visualizar los acordes protegidos.</p>
+                </div>
+
+                <div id="chordContent" class="protected-content">
+                    <!-- Eliminada capa de protección para permitir scroll -->
+                    <div id="actionButtons"></div>
+                    <h2 id="songTitleDisplay" class="song-title-display"></h2>
+                    <div id="textTarget">
+                        <!-- El contenido del PDF aparecerá aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Acordes Rafa. Todos los derechos reservados.</p>
+            <div style="display: flex; justify-content: center; gap: 20px; margin-top: 5px;">
+                <a href="privacidad.html" style="color: var(--text-muted); text-decoration: none;">Privacidad</a>
+                <a href="https://www.youtube.com/@AcordesRafa" target="_blank" style="color: var(--text-muted); text-decoration: none;">YouTube</a>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        /* Estilos ajustados para el visor de PDF */
+        .pdf-viewer-container {
+            width: 100%;
+            height: 1200px; /* Aumentado para ver más contenido */
+            position: relative;
+            background: #eee;
+            border-radius: 12px;
+            overflow: auto; /* Permitir scroll */
+            box-shadow: var(--shadow-soft);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-tutorial {
+            background: #FF0000;
+            color: white;
+        }
+
+        .btn-cover {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .protection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 5;
+            cursor: default;
+        }
+    </style>
+
+    <script>
+        // Base de Datos Unificada
+        const cancionero = {
+            populares: {
+                "A Mi Manera": { pdf: "A Mi Manera(Vicente Fernandez)10051.pdf", tutorial: "https://youtu.be/hfhOWKQjMP8", cover: "https://youtu.be/MPEn___y4Jw" },
+                "Aint No Sunshine": { pdf: "Aint No Sunshine(Bill Withers)10009.pdf", tutorial: "https://youtu.be/eKjiHRKak80", cover: "https://youtu.be/R6qLZrZOzy8" },
+                "Almohada": { pdf: "Almohada(José José)10007.pdf", tutorial: "https://youtu.be/5o4nAVP5kZQ", cover: "" },
+                "Amigo": { pdf: "Amigo(Roberto Carlos)10024.pdf", tutorial: "https://youtu.be/E-KktTv0aic", cover: "https://youtu.be/eM3pvCPLwMc" },
+                "Amor del Bueno": { pdf: "Amor del Bueno(Reyli Barba)10042.pdf", tutorial: "https://youtu.be/zj5W1KFIUig", cover: "https://youtu.be/aksRPHiwFf8" },
+                "Amor Eterno": { pdf: "Amor Eterno(Juan Gabriel)10014.pdf", tutorial: "https://youtu.be/nEVviclBJnA", cover: "" },
+                "Amores Lejanos": { pdf: "Amores Lejanos(Enanitos Verdes)10068.pdf", tutorial: "", cover: "https://youtu.be/jdF8QT_xvWA" },
+                "Anhelante": { pdf: "Anhelante(Gualberto Ibarreto)10069.pdf", tutorial: "", cover: "https://youtu.be/QKpzGv9QV-Y" },
+                "Arrullo de Estrellas": { pdf: "Arrullo de Estrellas(Zoé)10030.pdf", tutorial: "https://youtu.be/-3Tx8dSj_B4", cover: "https://youtu.be/kVTvRey5ifA" },
+                "Baby Can I Hold You": { pdf: "Baby Can I Hold You(Tracy Chapman)10065.pdf", tutorial: "", cover: "https://youtu.be/s8ka2ProbBA" },
+                "Cama y Mesa": { pdf: "Cama y Mesa(Roberto Carlos)10004.pdf", tutorial: "https://youtu.be/3HUM3aoCyVk", cover: "https://youtu.be/MkK0rOMeDgI" },
+                "Canción de Otoño": { pdf: "Canción de Otoño(José Luis Perales)10001.pdf", tutorial: "https://youtu.be/9mjVds37sqM", cover: "" },
+                "Canción Para Tí": { pdf: "Canción Para Tí(Frank Quintero)10056.pdf", tutorial: "https://youtu.be/KX0LPkKGVhM", cover: "https://youtu.be/O53k4mJRATY" },
+                "Chasing Cars": { pdf: "Chasing Cars(Snow Patrol)10046.pdf", tutorial: "https://youtu.be/kQx9lhRofhM", cover: "https://youtu.be/dF3dGyl5Ovw" },
+                "Cielo": { pdf: "Cielo(Benny Ibarra)10035.pdf", tutorial: "https://youtu.be/StAHxy9mGuQ", cover: "https://youtu.be/-GJ-O4WL7as" },
+                "Como Dueles en los Labios": { pdf: "Como Dueles en los Labios(Maná)10058.pdf", tutorial: "https://youtu.be/MXrJC5xMqi4", cover: "https://youtu.be/lKaryGkX0Jg" },
+                "Costumbres": { pdf: "Costumbres(Roberto Carlos)10071.pdf", tutorial: "https://youtu.be/7KuGad5jsrY", cover: "" },
+                "Counting Blue Cars": { pdf: "Counting Blue Cars(Dishwalla)10019.pdf", tutorial: "https://youtu.be/geE2hnxtWNU", cover: "https://youtu.be/h2xIqD5UpqY" },
+                "Creo en Ti": { pdf: "Creo en Ti(Reik)10040.pdf", tutorial: "https://youtu.be/jkdfDYo5WFs", cover: "https://youtu.be/9u1fo6z45Rg" },
+                "Cuando Nadie Me Ve": { pdf: "Cuando Nadie Me Ve(Alejandro Sanz)10031.pdf", tutorial: "https://youtu.be/mnNpEYPlld8", cover: "https://youtu.be/oZ-GYgivpiQ" },
+                "De Corazón a Corazón": { pdf: "De Corazón a Corazón(Roberto Carlos)10002.pdf", tutorial: "https://youtu.be/bWZ8KEa_VWs", cover: "https://youtu.be/B5dkqKAz6Cc" },
+                "Demons": { pdf: "Demons(Imagine Dragons)10044.pdf", tutorial: "https://youtu.be/Kb62ppxS4Dg", cover: "https://youtu.be/2YP-3ERYT08" },
+                "Desde que llegaste": { pdf: "Desde que llegaste(Reyli Barba)10067.pdf", tutorial: "", cover: "https://youtu.be/2yLVMsyg6u0" },
+                "Días de Junio": { pdf: "Días de Junio(Yordano)10057.pdf", tutorial: "https://youtu.be/UAoNwlB8EK8", cover: "https://youtu.be/dDgNfjLHNvM" },
+                "Eden": { pdf: "Eden(Hooverphonic)10016.pdf", tutorial: "https://youtu.be/K1ekFRbag_g", cover: "https://youtu.be/GkQrFtjXMGM" },
+                "El día que me quieras": { pdf: "El día que me quieras(Roberto Carlos)10037.pdf", tutorial: "https://youtu.be/rYpSIPlDA5w", cover: "https://youtu.be/7s69RXd07cc" },
+                "Eres": { pdf: "Eres(Alejandro Fernández)10045.pdf", tutorial: "https://youtu.be/MatG_JFgvqI", cover: "https://youtu.be/Q1c5EnErx7I" },
+                "Fantasmas": { pdf: "Fantasmas(Humbe)10072.pdf", tutorial: "https://youtu.be/Bhl5Z0rEY5s", cover: "" },
+                "Feel": { pdf: "Feel(Robbie Williams)10017.pdf", tutorial: "https://youtu.be/CaHiYMYtMFA", cover: "https://youtu.be/N3FcxzQcIMI" },
+                "Fluorescent Adolescent": { pdf: "Fluorescent Adolescent(Arctic Monkeys)10012.pdf", tutorial: "https://youtu.be/tJHm9XC9k1I", cover: "" },
+                "Fotografía": { pdf: "Fotografía(Juanes)10039.pdf", tutorial: "https://youtu.be/Kxf2u2XdPlI", cover: "https://youtu.be/v8SFTP8AZhg" },
+                "Gotas de Fuego": { pdf: "Gotas de Fuego(José José)10008.pdf", tutorial: "https://youtu.be/BPeQnQ9qHow", cover: "https://youtu.be/kg8AxvnGpSs" },
+                "Hoy Tengo Ganas de Tí": { pdf: "Hoy Tengo Ganas de Tí(Miguel Gallardo)10052.pdf", tutorial: "https://youtu.be/qm9mQop5iG4", cover: "https://youtu.be/FpEO64qpyMk" },
+                "La Condena": { pdf: "La Condena(Elefante)10034.pdf", tutorial: "https://youtu.be/W21NM_AxR-0", cover: "https://youtu.be/RhKCcyj4K_Q" },
+                "La Mujer que Amo": { pdf: "La Mujer que Amo(Roberto Carlos)10029.pdf", tutorial: "https://youtu.be/JG08XMiDrVA", cover: "https://youtu.be/UjpZs3g29RA" },
+                "La Puerta Azul": { pdf: "La Puerta Azul(Maná)10025.pdf", tutorial: "https://youtu.be/U0rUnZ8FDng", cover: "https://youtu.be/YURktLzV95M" },
+                "La Que Me Gusta": { pdf: "La Que Me Gusta(Los Amigos Invisibles)10018.pdf", tutorial: "https://youtu.be/4dgJMre6W38", cover: "https://youtu.be/Yquy0p86brc" },
+                "Labios Rotos": { pdf: "Labios Rotos(Zoé)10049.pdf", tutorial: "https://youtu.be/8iCzBug4Ayo", cover: "https://youtu.be/KGyuQV2GZmc" },
+                "Llorona": { pdf: "Llorona(Angela Aguilar)10021.pdf", tutorial: "https://youtu.be/IGqptlXgtHM", cover: "" },
+                "Luz de Día": { pdf: "Luz de Día(Enanitos Verdes)10066.pdf", tutorial: "", cover: "https://youtu.be/4brIpI8-enQ" },
+                "Mariposa Traicionera": { pdf: "Mariposa Traicionera(Maná)10041.pdf", tutorial: "https://youtu.be/H1MiFwQ5Q5o", cover: "https://youtu.be/nBTGA_Eo4UU" },
+                "Mi Novia Se Me Está Poniendo Vieja": { pdf: "Mi Novia Se Me Está Poniendo Vieja(Ricardo Arjona)10048.pdf", tutorial: "https://youtu.be/uju1oqcNsBs", cover: "https://youtu.be/6Pz1qDvHXDs" },
+                "Mi Verdad": { pdf: "Mi Verdad (Maná &Shakira)10003.pdf", tutorial: "https://youtu.be/y7B1JWhArNk", cover: "https://youtu.be/fkopb9erZg8" },
+                "Nada": { pdf: "Nada(Zoé)10050.pdf", tutorial: "https://youtu.be/jPsInIIRfBo", cover: "https://youtu.be/uBSWrcjSgbY" },
+                "Never Tear Us Apart": { pdf: "Never Tear Us Apart(INXS)10032.pdf", tutorial: "https://youtu.be/JH9IfvqIZTs", cover: "https://youtu.be/QUY2LzIIIyU" },
+                "No Me Destruyas": { pdf: "No Me Destruyas(Zoé)10028.pdf", tutorial: "https://youtu.be/VvYfpoM1F5M", cover: "https://youtu.be/DxNGkbHHTJM" },
+                "No Te Apartes de Mí": { pdf: "No Te Apartes de Mí(Vicentico)10047.pdf", tutorial: "https://youtu.be/y9yRBehpwno", cover: "https://youtu.be/zNDiNdLomVc" },
+                "Para Empezar": { pdf: "Para Empezar(Leonel García)10043.pdf", tutorial: "https://youtu.be/Yo-ESz0LikY", cover: "https://youtu.be/jsarh8UwVPk" },
+                "Para Que Tú No Llores": { pdf: "Para Que Tú No Llores(Antonio Carmona)10014.pdf", tutorial: "https://youtu.be/8J5EeORZFlI", cover: "https://youtu.be/4jXlwS-2kdU" },
+                "Perdón": { pdf: "Perdón(Vicente&Alejandro Fernandez)10010.pdf", tutorial: "https://youtu.be/WVJCyfp4oG4", cover: "https://youtu.be/W-kJTPweBIQ" },
+                "Piel Canela": { pdf: "Piel Canela(CUCO)10026.pdf", tutorial: "https://youtu.be/K9NW_Ox71-o", cover: "" },
+                "Piensa en Mí": { pdf: "Piensa en Mí(Liran Roll)10013.pdf", tutorial: "https://youtu.be/tBv31WKBKX8", cover: "" },
+                "Por Amor": { pdf: "Por Amor(Roberto Carlos)10000.pdf", tutorial: "https://youtu.be/MP2DLpEbgHU", cover: "" },
+                "Pupilas Lejanas": { pdf: "Pupilas Lejanas(Los Pericos)10062.pdf", tutorial: "https://youtu.be/WjQvw78uVoA", cover: "https://youtu.be/SFFnitivYwg" },
+                "Que Lloro": { pdf: "Que Lloro(Sin Bandera)10054.pdf", tutorial: "https://youtu.be/aYaNBDcOtfY", cover: "https://youtu.be/CaQLHL0m_h0" },
+                "Rayando el Sol": { pdf: "Rayando el Sol(Maná)10060.pdf", tutorial: "https://youtu.be/MX8rpuQ-wf0", cover: "https://youtu.be/ikSiAx5MzJ8" },
+                "Recuerdas": { pdf: "Recuerdas(Leonel García)10063.pdf", tutorial: "https://youtu.be/jZfndSPDvR8", cover: "https://youtu.be/8DlglnZdLHQ" },
+                "Reloj Cucú": { pdf: "Reloj Cucú(Maná)10059.pdf", tutorial: "https://youtu.be/gX4qDkTj-5c", cover: "https://youtu.be/DOj9OsqFpT0" },
+                "Rock and Roll": { pdf: "Rock and Roll(La Gusana CIega)10064.pdf", tutorial: "https://youtu.be/I6sEYaJOA3Y", cover: "" },
+                "Rue Vieille Du Temple": { pdf: "Rue Vieille Du Temple (León Larregui)10070.pdf", tutorial: "", cover: "https://youtu.be/DotWx-ztGDc" },
+                "San Miguel": { pdf: "San Miguel(La Gusana Ciega)10006.pdf", tutorial: "https://youtu.be/KRPp9HB4d7o", cover: "" },
+                "Siempre Me Quedará": { pdf: "Siempre Me Quedará(BEBE)10011.pdf", tutorial: "https://youtu.be/sJsvvFu0NJo", cover: "" },
+                "Sin Cadenas": { pdf: "Sin Cadenas(Los Pericos)10038.pdf", tutorial: "https://youtu.be/Vg9gDwikMQ8", cover: "https://youtu.be/0h-XAOB881I" },
+                "Sin Ti": { pdf: "Sin Ti(Benny Ibarra)10036.pdf", tutorial: "https://youtu.be/z8_-GjAqXiI", cover: "https://youtu.be/JBZfJueYzS8" },
+                "Stop Crying Your Heart Out": { pdf: "Stop Crying Your Heart Out(Oasis)10015.pdf", tutorial: "https://youtu.be/1a_Hiv8lNK4", cover: "https://youtu.be/Hu3m-HYskWk" },
+                "Tabaco y Chanel": { pdf: "Tabaco y Chanel(Bacilos)10055.pdf", tutorial: "https://youtu.be/7lkxfbMl2PY", cover: "https://youtu.be/foNxf8ODx7U" },
+                "Te Quiero": { pdf: "Te Quiero(Hombres G)10033.pdf", tutorial: "https://youtu.be/BC3TDCk0jq0", cover: "https://youtu.be/FnCt-MfrrKE" },
+                "Un Día Normal": { pdf: "Un Día Normal(Juanes)10053.pdf", tutorial: "https://youtu.be/9B1amnu264s", cover: "https://youtu.be/RTAVCNDgk-E" },
+                "Un Gato en la Obscuridad": { pdf: "Un Gato en la Obscuridad(Roberto Carlos)10027.pdf", tutorial: "https://youtu.be/0nF9uNq7aeA", cover: "https://youtu.be/GSJH2fEE40M" },
+                "Vamos a darnos tiempo": { pdf: "Vamos a darnos tiempo(José José)10020.pdf", tutorial: "https://youtu.be/DM8XmUPz5nc", cover: "https://youtu.be/3n2_2YQpXjA" },
+                "Yo Nací Para Amarte": { pdf: "Yo Nací Para Amarte(Alejandro Fernández)10005.pdf", tutorial: "https://youtu.be/Ok4GtFUXfzU", cover: "https://youtu.be/To6phz0rUy0" },
+                "Yo Te Propongo": { pdf: "Yo Te Propongo(Roberto Carlos)10061.pdf", tutorial: "https://youtu.be/Dl0HAKZDiAM", cover: "https://youtu.be/n312v7ANFHQ" },
+                "You have been loved": { pdf: "You have been loved(George Michael)10073.pdf", tutorial: "https://youtu.be/V7wM9iVqA4E", cover: "" }
+            },
+            dios: {
+                "5 panes y 2 veces": { pdf: "5 panes y 2 veces10006.pdf", tutorial: "", cover: "" },
+                "A edificar la iglesia": { pdf: "A edificar la iglesia10000.pdf", tutorial: "", cover: "" },
+                "A tu lado Señor": { pdf: "A tu lado Señor10005.pdf", tutorial: "", cover: "" },
+                "A tus pies": { pdf: "A tus pies 10048.pdf", tutorial: "", cover: "" },
+                "Alabaré a mi Señor": { pdf: "Alabaré a mi Señor10001.pdf", tutorial: "", cover: "" },
+                "Alabo tu bondad": { pdf: "Alabo tu bondad10002.pdf", tutorial: "", cover: "" },
+                "Aleluya": { pdf: "Aleluya10003.pdf", tutorial: "", cover: "" },
+                "Alto Escuchame": { pdf: "Alto Escuchame10004.pdf", tutorial: "", cover: "" },
+                "Arrepiéntete y cree en el Evangelio": { pdf: "Arrepiéntete y cree en el Evangelio10035.pdf", tutorial: "", cover: "" },
+                "Bendito, bendito": { pdf: "Bendito, bendito10038.pdf", tutorial: "", cover: "" },
+                "Caminaré en presencia del Señor": { pdf: "Caminaré en presencia del Señor10028.pdf", tutorial: "", cover: "" },
+                "Cantemos al Amor de los Amores": { pdf: "Cantemos al Amor de los Amores10043.pdf", tutorial: "", cover: "" },
+                "Con amor te presento Señor": { pdf: "Con amor te presento Señor10024.pdf", tutorial: "", cover: "" },
+                "Cordero de Dios": { pdf: "Cordero de Dios10042.pdf", tutorial: "", cover: "" },
+                "Cristo te necesita para amar": { pdf: "Cristo te necesita para amar10044.pdf", tutorial: "", cover: "" },
+                "Demos gracias al Señor": { pdf: "Demos gracias al Señor10007.pdf", tutorial: "", cover: "" },
+                "Dichosos": { pdf: "Dichosos10034.pdf", tutorial: "", cover: "" },
+                "Dios está aquí": { pdf: "Dios está aquí10008.pdf", tutorial: "", cover: "" },
+                "Dios y hombre": { pdf: "Dios y hombre10040.pdf", tutorial: "", cover: "" },
+                "El Alfarero - Vaso Nuevo": { pdf: "El Alfarero - Vaso Nuevo10030.pdf", tutorial: "", cover: "" },
+                "El Diario de María": { pdf: "El Diario de María10009.pdf", tutorial: "", cover: "" },
+                "Granito de Mostaza": { pdf: "Granito de Mostaza10010.pdf", tutorial: "", cover: "" },
+                "Ha Traído la Esperanza": { pdf: "Ha Traído la Esperanza10041.pdf", tutorial: "", cover: "" },
+                "Háblame Señor": { pdf: "Háblame Señor10011.pdf", tutorial: "", cover: "" },
+                "Junto a ti María": { pdf: "Junto a ti María10012.pdf", tutorial: "", cover: "" },
+                "Juntos como Hemanos": { pdf: "Juntos como Hemanos10013.pdf", tutorial: "", cover: "" },
+                "La Paz esté con nosotros": { pdf: "La Paz esté con nosotros10014.pdf", tutorial: "", cover: "" },
+                "Milagro de amor": { pdf: "Milagro de amor10032.pdf", tutorial: "", cover: "" },
+                "Nadie te ama como Yo": { pdf: "Nadie te ama como Yo10031.pdf", tutorial: "", cover: "" },
+                "Ofrenda de Amor": { pdf: "Ofrenda de Amor10015.pdf", tutorial: "", cover: "" },
+                "Pacto de esperanza": { pdf: "Pacto de esperanza10033.pdf", tutorial: "", cover: "" },
+                "Padre Nuestro": { pdf: "Padre Nuestro10016.pdf", tutorial: "", cover: "" },
+                "Padre Nuestro Gallego": { pdf: "Padre Nuestro Gallego10017.pdf", tutorial: "", cover: "" },
+                "Perdona a tu pueblo Señor": { pdf: "Perdona a tu pueblo Señor10036.pdf", tutorial: "", cover: "" },
+                "Pescador de Hombres": { pdf: "Pescador de Hombres10018.pdf", tutorial: "", cover: "" },
+                "Por la vía dolorosa": { pdf: "Por la vía dolorosa10026.pdf", tutorial: "", cover: "" },
+                "Querido Padre": { pdf: "Querido Padre10019.pdf", tutorial: "", cover: "" },
+                "Recibe oh Padre Santo": { pdf: "Recibe oh Padre Santo10047.pdf", tutorial: "", cover: "" },
+                "Sagrado corazón": { pdf: "Sagrado corazón10037.pdf", tutorial: "", cover: "" },
+                "Saliendo del Pretorio": { pdf: "Saliendo del Pretorio10025.pdf", tutorial: "", cover: "" },
+                "Señor ten piedad": { pdf: "Señor ten piedad10039.pdf", tutorial: "", cover: "" },
+                "Somos ciudadanos de un mundo": { pdf: "Somos ciudadanos de un mundo10020.pdf", tutorial: "", cover: "" },
+                "Te ofrezco Señor mi vida": { pdf: "Te ofrezco Señor mi vida10046.pdf", tutorial: "", cover: "" },
+                "Te presentamos el vino y el pan": { pdf: "Te presentamos el vino y el pan10021.pdf", tutorial: "", cover: "" },
+                "Una Espiga": { pdf: "Una Espiga10022.pdf", tutorial: "", cover: "" },
+                "Vamos cantando al Señor": { pdf: "Vamos cantando al Señor10045.pdf", tutorial: "", cover: "" },
+                "Venimos hoy a tu altar": { pdf: "Venimos hoy a tu altar10029.pdf", tutorial: "", cover: "" },
+                "Vienen con alegría": { pdf: "Vienen con alegría10027.pdf", tutorial: "", cover: "" },
+                "Ya no eres pan y vino": { pdf: "Ya no eres pan y vino10023.pdf", tutorial: "", cover: "" }
+            }
+        };
+
+        let currentCategory = 'populares';
+
+        function switchCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if(cat === 'populares') document.getElementById('btnPopulares').classList.add('active');
+            else document.getElementById('btnDios').classList.add('active');
+            document.getElementById('listHeaderTitle').innerText = cat === 'populares' ? 'Canciones Populares' : 'Cantos para Dios';
+            filterSongs();
+
+            // Cargar automáticamente la primera canción de la categoría
+            const songs = Object.keys(cancionero[cat]);
+            if (songs.length > 0) {
+                loadSong(songs[0]);
+            }
+        }
+
+        function filterSongs() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const list = document.getElementById('songsList');
+            list.innerHTML = '';
+            
+            const songs = Object.keys(cancionero[currentCategory]);
+            const filtered = songs.filter(s => s.toLowerCase().includes(query));
+            
+            filtered.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'song-item';
+                div.innerHTML = `<span>📄</span> ${song}`;
+                div.onclick = () => loadSong(song);
+                list.appendChild(div);
+            });
+        }
+
+        function loadSong(name) {
+            const songData = cancionero[currentCategory][name];
+            if (!songData) return;
+
+            document.querySelectorAll('.song-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('viewerPlaceholder').style.display = 'none';
+            document.getElementById('chordContent').style.display = 'block';
+            document.getElementById('songTitleDisplay').innerText = name;
+
+            const folder = currentCategory === 'populares' ? 'Cancionero%20Popular' : 'Canciones%20para%20Dios%20Word';
+            const pdfUrl = `${folder}/${songData.pdf}#toolbar=0&navpanes=0`;
+
+            // Actualizar Action Buttons (Tutorial/Cover)
+            const actionArea = document.getElementById('actionButtons');
+            actionArea.innerHTML = '';
+            
+            if (currentCategory === 'populares') {
+                const tutorialUrl = songData.tutorial || `https://www.youtube.com/results?search_query=acordes+rafa+${name.replace(/ /g, '+')}+tutorial`;
+                const coverUrl = songData.cover || `https://www.youtube.com/results?search_query=acordes+rafa+${name.replace(/ /g, '+')}+cover`;
+
+                actionArea.innerHTML = `
+                    <div class="action-buttons">
+                        <a href="${tutorialUrl}" target="_blank" class="btn-action btn-tutorial"><span>📺</span> Ver Tutorial</a>
+                        <a href="${coverUrl}" target="_blank" class="btn-action btn-cover"><span>🎸</span> Ver Cover</a>
+                    </div>
+                `;
+            }
+
+            // Cargar PDF
+            document.getElementById('textTarget').innerHTML = `
+                <div class="pdf-viewer-container">
+                    <iframe src="${pdfUrl}"></iframe>
+                </div>
+            `;
+
+            document.getElementById('chordContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        window.onload = () => switchCategory('populares');
+
+        document.onkeydown = function(e) {
+            if(e.ctrlKey && (e.keyCode === 67 || e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 73 || (e.shiftKey && e.keyCode === 73)) || e.keyCode === 123) {
+                return false;
+            }
+        };
+    </script>
+</body>
+</html>

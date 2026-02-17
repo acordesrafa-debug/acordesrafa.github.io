@@ -29,10 +29,11 @@
                 Acordes Rafa
             </a>
             <ul class="nav-links">
-                <li><a href="#inicio">Inicio</a></li>
-                <li><a href="#apps">Apps</a></li>
-                <li><a href="#lecciones">Lecciones</a></li>
-                <li><a href="#sobre-mi">Sobre mí</a></li>
+                <li><a href="index.html#inicio">Inicio</a></li>
+                <li><a href="acordes.html">Letras con Acordes</a></li>
+                <li><a href="index.html#apps">Apps</a></li>
+                <li><a href="index.html#lecciones">Lecciones</a></li>
+                <li><a href="index.html#sobre-mi">Sobre mí</a></li>
             </ul>
         </nav>
     </header>
@@ -56,7 +57,7 @@
     <!-- SECCIÓN: NUESTRAS APPS -->
     <section id="apps">
         <div class="container">
-            <h2 class="section-title">Mis Aplicaciones</h2>
+            <h2 class="section-title">Nuestras Aplicaciones</h2>
             <div style="text-align: center; max-width: 700px; margin: 0 auto;">
                 <p style="color: var(--text-muted); margin-bottom: 20px;">Lleva tus acordes a todas partes con nuestras apps gratuitas.</p>
                 
@@ -97,14 +98,17 @@
                 <div class="card">
                     <h3>Fundamentos</h3>
                     <p>La base para cualquier guitarrista: postura, digitación y los primeros acordes abiertos.</p>
+                    <a href="leccion-fundamentos.html" class="btn btn-secondary" style="margin-top: 15px; margin-left: 0; padding: 8px 16px; font-size: 0.85rem;">Leer lección</a>
                 </div>
                 <div class="card">
                     <h3>Armonía Moderna</h3>
                     <p>Entiende cómo se construyen los acordes y cómo usarlos para componer o rearmonizar canciones.</p>
+                    <a href="leccion-armonia.html" class="btn btn-secondary" style="margin-top: 15px; margin-left: 0; padding: 8px 16px; font-size: 0.85rem;">Leer lección</a>
                 </div>
                 <div class="card">
                     <h3>Técnica Simplificada</h3>
                     <p>Especialízate en técnicas efectivas para tocar tus canciones favoritas con fluidez.</p>
+                    <a href="leccion-tecnica.html" class="btn btn-secondary" style="margin-top: 15px; margin-left: 0; padding: 8px 16px; font-size: 0.85rem;">Leer lección</a>
                 </div>
             </div>
         </div>
@@ -134,9 +138,8 @@ Ya sea que seas principiante absoluto o busques pulir tus habilidades intermedia
         <div class="container">
             <p>&copy; 2024 Acordes Rafa. Todos los derechos reservados.</p>
             <div style="display: flex; justify-content: center; gap: 20px; margin-top: 5px;">
+                <a href="privacidad.html" style="color: var(--text-muted); text-decoration: none;">Privacidad</a>
                 <a href="https://www.youtube.com/@AcordesRafa" target="_blank" style="color: var(--text-muted); text-decoration: none;">YouTube</a>
-                <a href="#" style="color: var(--text-muted); text-decoration: none;">Twitter</a>
-                <a href="#" style="color: var(--text-muted); text-decoration: none;">Instagram</a>
             </div>
         </div>
     </footer>
@@ -153,26 +156,43 @@ Ya sea que seas principiante absoluto o busques pulir tus habilidades intermedia
 
     <script>
         // Tabbed navigation handling
+        function showSection(targetId) {
+            const section = document.getElementById(targetId);
+            if (section) {
+                // Hide all sections
+                document.querySelectorAll('section').forEach(s => {
+                    s.classList.remove('active-section');
+                });
+                // Show target section
+                section.classList.add('active-section');
+                // Smooth scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
         document.querySelectorAll('.nav-links a').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                const targetId = this.getAttribute('href').substring(1);
+                const href = this.getAttribute('href');
                 
-                // If it's an internal link
-                if (document.getElementById(targetId)) {
-                    e.preventDefault();
-                    
-                    // Hide all sections
-                    document.querySelectorAll('section').forEach(section => {
-                        section.classList.remove('active-section');
-                    });
-                    
-                    // Show target section
-                    document.getElementById(targetId).classList.add('active-section');
-                    
-                    // Smooth scroll to top
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                // If it's a link to a section on THIS page
+                if (href.includes('#')) {
+                    const targetId = href.split('#')[1];
+                    if (document.getElementById(targetId)) {
+                        e.preventDefault();
+                        showSection(targetId);
+                        // Update URL hash without jumping
+                        history.pushState(null, null, '#' + targetId);
+                    }
                 }
             });
+        });
+
+        // Handle direct links to sections (e.g., index.html#apps)
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                showSection(hash);
+            }
         });
     </script>
 </body>
