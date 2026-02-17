@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Letras con Acordes | Acordes Rafa</title>
+    <!-- Google AdSense Verification -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2394918736393015"
+     crossorigin="anonymous"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="Fondoapp.png">
     <style>
@@ -368,7 +371,7 @@
                 "No Me Destruyas": { pdf: "No Me Destruyas(Zoé)10028.pdf", tutorial: "https://youtu.be/VvYfpoM1F5M", cover: "https://youtu.be/DxNGkbHHTJM" },
                 "No Te Apartes de Mí": { pdf: "No Te Apartes de Mí(Vicentico)10047.pdf", tutorial: "https://youtu.be/y9yRBehpwno", cover: "https://youtu.be/zNDiNdLomVc" },
                 "Para Empezar": { pdf: "Para Empezar(Leonel García)10043.pdf", tutorial: "https://youtu.be/Yo-ESz0LikY", cover: "https://youtu.be/jsarh8UwVPk" },
-                "Para Que Tú No Llores": { pdf: "Para Que Tú No Llores(Antonio Carmona)10014.pdf", tutorial: "https://youtu.be/8J5EeORZFlI", cover: "https://youtu.be/4jXlwS-2kdU" },
+                "Para Que Tú No Llores": { pdf: "Para Que Tú No Llores(Antonio Carmona)10023.pdf", tutorial: "https://youtu.be/8J5EeORZFlI", cover: "https://youtu.be/4jXlwS-2kdU" },
                 "Perdón": { pdf: "Perdón(Vicente&Alejandro Fernandez)10010.pdf", tutorial: "https://youtu.be/WVJCyfp4oG4", cover: "https://youtu.be/W-kJTPweBIQ" },
                 "Piel Canela": { pdf: "Piel Canela(CUCO)10026.pdf", tutorial: "https://youtu.be/K9NW_Ox71-o", cover: "" },
                 "Piensa en Mí": { pdf: "Piensa en Mí(Liran Roll)10013.pdf", tutorial: "https://youtu.be/tBv31WKBKX8", cover: "" },
@@ -395,7 +398,7 @@
                 "You have been loved": { pdf: "You have been loved(George Michael)10073.pdf", tutorial: "https://youtu.be/V7wM9iVqA4E", cover: "" }
             },
             dios: {
-                "5 panes y 2 peces": { pdf: "5 panes y 2 peces10006.pdf", tutorial: "", cover: "" },
+                "5 panes y 2 veces": { pdf: "5 panes y 2 veces10006.pdf", tutorial: "", cover: "" },
                 "A edificar la iglesia": { pdf: "A edificar la iglesia10000.pdf", tutorial: "", cover: "" },
                 "A tu lado Señor": { pdf: "A tu lado Señor10005.pdf", tutorial: "", cover: "" },
                 "A tus pies": { pdf: "A tus pies 10048.pdf", tutorial: "", cover: "" },
@@ -512,7 +515,7 @@
             // Cargar PDF
             document.getElementById('textTarget').innerHTML = `
                 <div class="pdf-viewer-container">
-                    <iframe src="${pdfUrl}"></iframe>
+                    <iframe src="${encodeURIComponent(folderName)}/${encodeURIComponent(songData.pdf)}#toolbar=0&navpanes=0"></iframe>
                 </div>
             `;
 
