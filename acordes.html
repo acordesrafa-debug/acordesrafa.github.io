@@ -204,6 +204,90 @@
                 gap: 10px;
             }
         }
+
+        /* Subscription Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-dark);
+        }
+
+        .modal-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .modal-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #635bff 0%, #a259ff 100%);
+            color: white;
+            width: 100%;
+            justify-content: center;
+            font-size: 1.1rem;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -259,6 +343,19 @@
             </div>
         </div>
     </main>
+
+    <!-- Subscription Modal -->
+    <div id="subscriptionModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <span class="modal-icon">⭐</span>
+            <h3 class="modal-title">Contenido Premium</h3>
+            <p class="modal-text">Suscríbete para poder descargar todas las canciones en formato PDF y llevar tus acordes a donde quieras, incluso sin conexión.</p>
+            <a href="https://www.youtube.com/@AcordesRafa/join" target="_blank" class="btn btn-premium">Suscribirme Ahora</a>
+            <p style="margin-top: 15px; font-size: 0.8rem; color: #999;">Apoya el crecimiento de Acordes Rafa</p>
+        </div>
+    </div>
+
 
     <footer>
         <div class="container">
@@ -318,10 +415,16 @@
             color: white;
         }
 
+        .btn-pdf {
+            background: #635bff;
+            color: white;
+        }
+
         .btn-action:hover {
             transform: translateY(-2px);
             filter: brightness(1.1);
         }
+
 
         .protection-overlay {
             position: absolute;
@@ -510,35 +613,80 @@
             document.getElementById('songTitleDisplay').innerText = name;
 
             const folderName = currentCategory === 'populares' ? 'Cancionero Popular' : 'Canciones para Dios Word';
-            const pdfUrl = `${encodeURIComponent(folderName)}/${encodeURIComponent(songData.pdf)}#toolbar=0&navpanes=0`;
+            const pdfUrl = `${encodeURIComponent(folderName)}/${encodeURIComponent(songData.pdf)}`;
 
-            // Actualizar Action Buttons (Tutorial/Cover)
+            // Actualizar Action Buttons (Tutorial/Cover/PDF)
             const actionArea = document.getElementById('actionButtons');
             actionArea.innerHTML = '';
+            
+            let buttonsHtml = '<div class="action-buttons">';
             
             if (currentCategory === 'populares') {
                 const tutorialUrl = songData.tutorial || `https://www.youtube.com/results?search_query=acordes+rafa+${name.replace(/ /g, '+')}+tutorial`;
                 const coverUrl = songData.cover || `https://www.youtube.com/results?search_query=acordes+rafa+${name.replace(/ /g, '+')}+cover`;
 
-                actionArea.innerHTML = `
-                    <div class="action-buttons">
-                        <a href="${tutorialUrl}" target="_blank" class="btn-action btn-tutorial"><span>📺</span> Ver Tutorial</a>
-                        <a href="${coverUrl}" target="_blank" class="btn-action btn-cover"><span>🎸</span> Ver Cover</a>
-                    </div>
+                buttonsHtml += `
+                    <a href="${tutorialUrl}" target="_blank" class="btn-action btn-tutorial"><span>📺</span> Tutorial</a>
+                    <a href="${coverUrl}" target="_blank" class="btn-action btn-cover"><span>🎸</span> Cover</a>
                 `;
             }
 
-            // Cargar PDF
+            // Botón de PDF para todos
+            buttonsHtml += `
+                <a href="javascript:void(0)" onclick="handleDownload('${pdfUrl}', '${name}')" class="btn-action btn-pdf"><span>📄</span> Descargar PDF</a>
+            `;
+            
+            buttonsHtml += '</div>';
+            actionArea.innerHTML = buttonsHtml;
+
+            // Cargar PDF en el visor
             document.getElementById('textTarget').innerHTML = `
                 <div class="pdf-viewer-container">
-                    <iframe src="${encodeURIComponent(folderName)}/${encodeURIComponent(songData.pdf)}#toolbar=0&navpanes=0"></iframe>
+                    <iframe src="${pdfUrl}#toolbar=0&navpanes=0"></iframe>
                 </div>
             `;
 
             document.getElementById('chordContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        // Lógica de Suscripción y Descarga
+        function handleDownload(url, name) {
+            // Verificamos si el usuario ya está suscrito (simulado con localStorage)
+            // En una app real, esto vendría de una validación de cuenta/login
+            const isSubscribed = localStorage.getItem('acordes_rafa_premium') === 'true';
+
+            if (isSubscribed) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${name}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                openModal();
+            }
+        }
+
+        function openModal() {
+            const modal = document.getElementById('subscriptionModal');
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('subscriptionModal');
+            modal.classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('subscriptionModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
         window.onload = () => switchCategory('populares');
+
 
         document.onkeydown = function(e) {
             if(e.ctrlKey && (e.keyCode === 67 || e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 73 || (e.shiftKey && e.keyCode === 73)) || e.keyCode === 123) {
