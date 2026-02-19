@@ -180,12 +180,28 @@
             z-index: 10;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 768px) {
+            .search-container {
+                padding: 120px 15px 15px;
+            }
             .explorer-layout {
                 grid-template-columns: 1fr;
             }
             .songs-list-container {
-                height: 400px;
+                height: 300px;
+            }
+            .chord-viewer-container {
+                padding: 20px 15px;
+            }
+            .protected-content {
+                padding: 15px;
+            }
+            .song-title-display {
+                font-size: 1.4rem;
+            }
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
             }
         }
     </style>

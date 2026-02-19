@@ -21,6 +21,18 @@
     box-sizing: border-box;
 }
 
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-fresh);
@@ -42,14 +54,13 @@ header {
 
 nav {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    height: auto;
-    padding: 10px 20px;
-    max-width: 1100px;
+    padding: 15px 0;
+    max-width: 1200px;
     margin: 0 auto;
-    gap: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .logo {
@@ -128,7 +139,6 @@ nav {
     gap: 40px;
     position: relative;
     z-index: 1;
-    padding-left: 5%; /* Shift content slightly to the right */
 }
 
 .hero-content {
@@ -362,16 +372,68 @@ footer p {
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-    .hero-container {
+@media (max-width: 768px) {
+    nav {
         flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-links {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-links a {
+        font-size: 1rem;
+    }
+
+    .hero {
+        padding-top: 140px;
         text-align: center;
     }
-    .hero h1 { font-size: 2.5rem; }
-    .hero p { margin: 0 auto 32px; }
+
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero p {
+        margin: 0 auto 20px;
+    }
+
+    .cta-group {
+        justify-content: center;
+    }
+
+    .fixed-guitar {
+        display: none; /* Hide floating guitar on mobile to save space */
+    }
+
+    .fixed-background img {
+        opacity: 0.15; /* Even softer on mobile */
+    }
+
     .profile-card {
+        padding: 30px 20px;
+        gap: 20px;
+    }
+
+    .profile-img {
+        width: 180px;
+        height: 180px;
+    }
+
+    .apps-grid {
         flex-direction: column;
-        text-align: center;
-        padding: 40px 20px;
+        gap: 20px;
+    }
+
+    footer {
+        position: relative; /* Not fixed on mobile to avoid covering content */
+        margin-top: 40px;
+    }
+
+    .legal-content, .lesson-header, .lesson-content {
+        padding-top: 100px !important;
     }
 }
