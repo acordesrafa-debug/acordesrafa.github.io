@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramienta de Acordes | Acordes Rafa</title>
+    <meta name="description" content="Generador e identificador interactivo de acordes de guitarra. Basado en teoría musical formal.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="Fondoapp.png">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2394918736393015" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #635bff;
+            --accent2: #a259ff;
+            --surface: #f8f9ff;
+            --card: #ffffff;
+            --border: rgba(99,91,255,0.12);
+            --text: #1a1f36;
+            --muted: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        /* ── Layout ── */
+        .tool-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 20px 80px;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .tool-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .tool-header p {
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        /* ── Tab Switcher ── */
+        .tool-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .tool-tab {
+            padding: 10px 28px;
+            border-radius: 40px;
+            border: 2px solid var(--border);
+            background: var(--card);
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-tab.active {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 15px rgba(99,91,255,0.35);
+        }
+
+        .tool-tab:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tool-panel { display: none; }
+        .tool-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── Card ── */
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 24px rgba(99,91,255,0.06);
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        /* ── Input Row ── */
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .chord-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            font-family: var(--mono);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--surface);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chord-input:focus { border-color: var(--accent); }
+
+        .btn-generate {
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,91,255,0.35); }
+        .btn-generate:active { transform: translateY(0); }
+
+        /* ── Chord Info ── */
+        .chord-info {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .info-badge {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+        }
+
+        .info-badge .label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .info-badge .value {
+            font-family: var(--mono);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+
+        /* ── Notes Table ── */
+        .notes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+        .notes-table th {
+            background: var(--surface);
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+        .notes-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--mono);
+        }
+        .notes-table tr:last-child td { border-bottom: none; }
+        .interval-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+        }
+
+        /* ── Voicings Grid ── */
+        .voicings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .voicing-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .voicing-card:hover, .voicing-card.selected {
+            border-color: var(--accent);
+            box-shadow: 0 4px 16px rgba(99,91,255,0.2);
+            transform: translateY(-2px);
+        }
+        .voicing-card.selected { background: rgba(99,91,255,0.04); }
+
+        .voicing-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        /* ── SVG Fretboard ── */
+        .fretboard-svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ── Interactive Fretboard (Identifier) ── */
+        .fretboard-interactive-wrap {
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+
+        .fretboard-interactive {
+            display: block;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        .fret-cell {
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .fret-cell:hover rect { fill: rgba(99,91,255,0.12); }
+
+        /* ── Result ── */
+        .result-primary {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin: 12px 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .result-primary .spanish-inline {
+            font-size: 1.35rem;
+            font-weight: 500;
+            color: var(--muted);
+            opacity: 0.8;
+            background: none !important;
+            -webkit-text-fill-color: var(--muted) !important;
+        }
+
+        .result-sub {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .alt-names {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .alt-name-chip {
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: var(--mono);
+        }
+
+        .harmonic-pill {
+            display: inline-block;
+            background: rgba(16,185,129,0.1);
+            color: var(--success);
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        /* ── String Controls (Identifier) ── */
+        .string-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .string-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .string-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .fret-input {
+            width: 52px;
+            height: 44px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            text-align: center;
+            font-family: var(--mono);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--surface);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .fret-input:focus { border-color: var(--accent); }
+        .fret-input.muted { color: #ef4444; border-color: rgba(239,68,68,0.35); }
+
+        .btn-mute {
+            width: 52px;
+            height: 28px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-mute.active { background: #fee2e2; border-color: #ef4444; color: #ef4444; }
+        .btn-mute:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Presets ── */
+        .presets-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        @media (max-width: 600px) {
+            .presets-row { gap: 6px; }
+            .preset-btn { padding: 4px 10px; font-size: 0.75rem; }
+        }
+
+        .preset-btn {
+            padding: 5px 13px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.82rem;
+            font-family: var(--mono);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .preset-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* ── Error ── */
+        .error-msg {
+            text-align: center;
+            color: #ef4444;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .tool-header h1 { font-size: 1.6rem; }
+            .voicings-grid { grid-template-columns: repeat(2, 1fr); }
+            .chord-info { gap: 10px; }
+        }
+
+        /* ── Section title ── */
+        .section-subtitle {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        /* ── Two column layout ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+        /* Placeholder state */
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            color: var(--muted);
+            gap: 10px;
+        }
+        .placeholder .icon { font-size: 3rem; opacity: 0.3; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER (same nav as main site) -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <img src="Fondoapp.png" alt="Icono">
+                Acordes Rafa
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#inicio">Inicio</a></li>
+                <li><a href="acordes.html">Letras con Acordes</a></li>
+                <li><a href="index.html#lecciones">Lecciones</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="tool-container">
+
+        <div class="tool-header">
+            <h1>🎸 Herramienta de Acordes</h1>
+            <p>Genera digitaciones desde un nombre o identifica un acorde desde las pisadas — basado en teoría musical formal</p>
+        </div>
+
+        <!-- TABS -->
+        <div class="tool-tabs">
+            <button class="tool-tab active" onclick="switchTab('generator')" id="tab-generator">🎵 Generador de Acordes</button>
+            <button class="tool-tab" onclick="switchTab('identifier')" id="tab-identifier">🔍 Identificador de Acordes</button>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- PANEL 1: GENERADOR -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div class="tool-panel active" id="panel-generator">
+            <div class="card">
+                <p class="section-subtitle">Escribe el nombre del acorde</p>
+                <div class="input-row">
+                    <input type="text" id="chordInput" class="chord-input"
+                        placeholder="Ej: Cmaj7 · DOmaj7 · G7 · SOL7 · MIm7b5 · SIb13"
+                        autocomplete="off" spellcheck="false"
+                        oninput="liveGenerate()"
+                        onkeydown="if(event.key==='Enter') generateChord()">
+                    <button class="btn-generate" onclick="generateChord()">Generar</button>
+                </div>
+                <!-- Presets -->
+                <div class="presets-row">
+                    <span style="font-size:0.75rem;color:var(--muted);align-self:center;">Ejemplos (inglés/español):</span>
+                    <button class="preset-btn" onclick="setChord('Cmaj7')">Cmaj7 / DOmaj7</button>
+                    <button class="preset-btn" onclick="setChord('Am7')">Am7 / LAm7</button>
+                    <button class="preset-btn" onclick="setChord('G7')">G7 / SOL7</button>
+                    <button class="preset-btn" onclick="setChord('F#m7b5')">F#m7b5</button>
+                    <button class="preset-btn" onclick="setChord('Bdim7')">Bdim7 / SIdim7</button>
+                    <button class="preset-btn" onclick="setChord('MIbmaj7')">MIbmaj7</button>
+                    <button class="preset-btn" onclick="setChord('SOL7#9')">SOL7#9</button>
+                    <button class="preset-btn" onclick="setChord('RE/FA#')">RE/FA#</button>
+                    <button class="preset-btn" onclick="setChord('Bb13')">Bb13 / SIb13</button>
+                    <button class="preset-btn" onclick="setChord('Esus4')">Esus4 / MIsus4</button>
+                </div>
+            </div>
+
+            <!-- Result area -->
+            <div id="generatorResult">
+                <div class="card placeholder">
+                    <div class="icon">🎼</div>
+                    <p>Escribe un acorde arriba para ver sus digitaciones</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- PANEL 2: IDENTIFICADOR -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div class="tool-panel" id="panel-identifier">
+            <div class="card">
+                <p class="section-subtitle">Coloca las pisadas en el diapasón (0 = cuerda al aire, X = silenciada)</p>
+
+                <div class="string-controls">
+                    <!-- 6 string inputs, low E → high E -->
+                    <div class="string-col">
+                        <div class="string-label">E₂</div>
+                        <input type="text" class="fret-input" id="str0" placeholder="0" maxlength="2" oninput="onFretInput(0,this)">
+                        <button class="btn-mute" id="mute0" onclick="toggleMute(0)">✕ Mute</button>
+                    </div>
+                    <div class="string-col">
+                        <div class="string-label">A₂</div>
+                        <input type="text" class="fret-input" id="str1" placeholder="0" maxlength="2" oninput="onFretInput(1,this)">
+                        <button class="btn-mute" id="mute1" onclick="toggleMute(1)">✕ Mute</button>
+                    </div>
+                    <div class="string-col">
+                        <div class="string-label">D₃</div>
+                        <input type="text" class="fret-input" id="str2" placeholder="0" maxlength="2" oninput="onFretInput(2,this)">
+                        <button class="btn-mute" id="mute2" onclick="toggleMute(2)">✕ Mute</button>
+                    </div>
+                    <div class="string-col">
+                        <div class="string-label">G₃</div>
+                        <input type="text" class="fret-input" id="str3" placeholder="0" maxlength="2" oninput="onFretInput(3,this)">
+                        <button class="btn-mute" id="mute3" onclick="toggleMute(3)">✕ Mute</button>
+                    </div>
+                    <div class="string-col">
+                        <div class="string-label">B₃</div>
+                        <input type="text" class="fret-input" id="str4" placeholder="0" maxlength="2" oninput="onFretInput(4,this)">
+                        <button class="btn-mute" id="mute4" onclick="toggleMute(4)">✕ Mute</button>
+                    </div>
+                    <div class="string-col">
+                        <div class="string-label">E₄</div>
+                        <input type="text" class="fret-input" id="str5" placeholder="0" maxlength="2" oninput="onFretInput(5,this)">
+                        <button class="btn-mute" id="mute5" onclick="toggleMute(5)">✕ Mute</button>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn-generate" onclick="identifyChord()">Identificar Acorde</button>
+                    <button class="btn-generate" style="background:var(--surface);color:var(--muted);box-shadow:none;border:2px solid var(--border);" onclick="clearIdentifier()">Limpiar</button>
+                </div>
+
+                <!-- Preset chord patterns for testing -->
+                <div class="presets-row" style="justify-content:center;">
+                    <span style="font-size:0.75rem;color:var(--muted);align-self:center;">Probar:</span>
+                    <button class="preset-btn" onclick="setFrets([0,2,2,0,0,0])">Em</button>
+                    <button class="preset-btn" onclick="setFrets(['x',0,2,2,1,0])">Am</button>
+                    <button class="preset-btn" onclick="setFrets([3,2,0,0,0,3])">G</button>
+                    <button class="preset-btn" onclick="setFrets(['x',0,2,2,2,0])">A</button>
+                    <button class="preset-btn" onclick="setFrets([0,2,0,1,0,0])">E7</button>
+                    <button class="preset-btn" onclick="setFrets(['x',0,2,0,1,0])">Am7</button>
+                    <button class="preset-btn" onclick="setFrets([3,2,0,0,0,1])">G7</button>
+                    <button class="preset-btn" onclick="setFrets([0,2,2,0,3,0])">Em7</button>
+                </div>
+            </div>
+
+            <!-- Identifier Result -->
+            <div id="identifierResult">
+                <div class="card placeholder">
+                    <div class="icon">🔍</div>
+                    <p>Ingresa las pisadas arriba para identificar el acorde</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="guitar-theory.js"></script>
+    <script src="guitar-tool-ui.js"></script>
+
+</body>
+</html>
