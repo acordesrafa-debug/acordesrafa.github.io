@@ -381,10 +381,10 @@ function identifyChord() {
     const frets = [];
     for (let i = 0; i < 6; i++) {
         const val = document.getElementById('str' + i).value.trim();
-        if (val === '' || val === '-') {
+        if (muteState[i] || val === 'x' || val === 'X') {
             frets.push('x');
-        } else if (val === 'x' || val === 'X' || muteState[i]) {
-            frets.push('x');
+        } else if (val === '' || val === '-') {
+            frets.push(0); // Default to open string if not muted
         } else {
             const n = parseInt(val);
             frets.push(isNaN(n) ? 'x' : n);
