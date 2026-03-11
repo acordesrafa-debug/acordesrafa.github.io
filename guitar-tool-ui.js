@@ -136,6 +136,10 @@ function renderGeneratorResult(data) {
     // Mark first selected
     const firstCard = document.querySelector('.voicing-card');
     if (firstCard) firstCard.classList.add('selected');
+
+    if (typeof renderGeneratorHorizontalFretboard === 'function') {
+        renderGeneratorHorizontalFretboard(selectedVoicing);
+    }
 }
 
 function selectVoicing(idx) {
@@ -147,6 +151,9 @@ function selectVoicing(idx) {
     const v = currentChordData.voicings[idx];
     if (v) {
         document.getElementById('activeDiagram').innerHTML = renderFretDiagram(v, currentChordData);
+        if (typeof renderGeneratorHorizontalFretboard === 'function') {
+            renderGeneratorHorizontalFretboard(v);
+        }
     }
 }
 
@@ -314,6 +321,212 @@ function semitonesToName(semitones) {
 }
 
 // ── Chord Identifier ──
+
+function renderGeneratorHorizontalFretboard(voicing) {
+    const STRINGS = 6;
+    const FRETS = 14; 
+    const W = 800;
+    const H = 220;
+    const LEFT = 20;
+    const RIGHT = W - 80;
+    const TOP = 40;
+    const BOTTOM = H - 30;
+    const strH = (BOTTOM - TOP) / (STRINGS - 1);
+    const fretW = (RIGHT - LEFT) / FRETS;
+
+    let svg = `<svg width="100%" viewBox="0 0 ${W} ${H}" class="fretboard-interactive" preserveAspectRatio="xMidYMid meet" style="max-width:800px; background:var(--surface); border-radius:12px; border: 1px solid var(--border); pointer-events: none;">`;
+
+    const stringNames = ['E', 'A', 'D', 'G', 'B', 'e'];
+
+    for(let f = 1; f <= FRETS; f++) {
+        const x = RIGHT - (f - 0.5) * fretW;
+        svg += `<text x="${x}" y="${TOP - 16}" font-size="12" fill="var(--muted)" font-weight="600" text-anchor="middle" font-family="var(--mono)">${f}</text>`;
+    }
+
+    const markerFrets = [3, 5, 7, 9, 12];
+    markerFrets.forEach(f => {
+        if(f <= FRETS) {
+            const x = RIGHT - (f - 0.5) * fretW;
+            if (f === 12) {
+                svg += `<circle cx="${x}" cy="${TOP + 1.5 * strH}" r="6" fill="#e5e7eb" />`;
+                svg += `<circle cx="${x}" cy="${TOP + 3.5 * strH}" r="6" fill="#e5e7eb" />`;
+            } else {
+                svg += `<circle cx="${x}" cy="${TOP + 2.5 * strH}" r="7" fill="#e5e7eb" />`;
+            }
+        }
+    });
+
+    for(let f = 0; f <= FRETS; f++) {
+        const x = RIGHT - f * fretW;
+        svg += `<line x1="${x}" y1="${TOP}" x2="${x}" y2="${BOTTOM}" stroke="${f===0 ? 'var(--text)' : '#d1d5db'}" stroke-width="${f===0 ? 4 : 2}" />`;
+    }
+
+    for(let i = 0; i < STRINGS; i++) {
+        const y = TOP + i * strH;
+        const thickness = 1 + (5 - i) * 0.45;
+        svg += `<line x1="${LEFT}" y1="${y}" x2="${RIGHT}" y2="${y}" stroke="#9ca3af" stroke-width="${thickness}" />`;
+        
+        let isMuted = false;
+        let fretVal = null;
+        let noteName = '';
+        let intervalName = '';
+
+        if (voicing && voicing[i] !== undefined) {
+            const v = voicing[i];
+            if (v.fret === 'x') {
+                isMuted = true;
+            } else {
+                fretVal = v.fret;
+                noteName = v.note;
+                intervalName = v.interval;
+            }
+        } else {
+            isMuted = false;
+        }
+
+        const isOpenLabel = (!voicing) || (!isMuted && fretVal === 0);
+
+        svg += `<g class="fret-cell">
+            <text x="${RIGHT + 25}" y="${y + 4}" font-size="14" fill="${isMuted ? 'var(--muted)' : 'var(--accent)'}" font-weight="700" text-anchor="middle" font-family="var(--mono)">${stringNames[i]}</text>
+        </g>`;
+
+        svg += `<g class="fret-cell">
+            <text x="${RIGHT + 55}" y="${y + 5}" font-size="14" fill="${isMuted ? '#ef4444' : 'var(--muted)'}" font-weight="700" text-anchor="middle" font-family="var(--mono)">✕</text>
+        </g>`;
+
+        if (isOpenLabel) {
+            svg += `<circle cx="${RIGHT + 25}" cy="${y - 1}" r="10" fill="transparent" stroke="${isMuted ? 'transparent' : 'var(--accent)'}" stroke-width="2" style="pointer-events:none;" />`;
+        }
+
+        if (fretVal && fretVal > 0 && fretVal <= FRETS) {
+            const cx = RIGHT - (fretVal - 0.5) * fretW;
+            const color = intervalColor(intervalName);
+            svg += `<circle cx="${cx}" cy="${y}" r="12" fill="${color}" style="pointer-events:none;"/>`;
+            svg += `<text x="${cx}" y="${y + 4}" font-size="10" text-anchor="middle" fill="white" font-weight="700" font-family="JetBrains Mono,monospace">${noteName}</text>`;
+        }
+    }
+
+    svg += '</svg>';
+    const container = document.getElementById('generatorHorizontalFretboard');
+    if(container) container.innerHTML = svg;
+}
+
+// ── Interactive Horizontal Fretboard ──
+function renderInteractiveFretboard() {
+    const STRINGS = 6;
+    const FRETS = 14; 
+    const W = 800;
+    const H = 220;
+    const LEFT = 20;
+    const RIGHT = W - 80;
+    const TOP = 40;
+    const BOTTOM = H - 30;
+    const strH = (BOTTOM - TOP) / (STRINGS - 1);
+    const fretW = (RIGHT - LEFT) / FRETS;
+
+    let svg = `<svg width="100%" viewBox="0 0 ${W} ${H}" class="fretboard-interactive" preserveAspectRatio="xMidYMid meet" style="max-width:800px; background:var(--surface); border-radius:12px; border: 1px solid var(--border);">`;
+
+    const stringNames = ['E', 'A', 'D', 'G', 'B', 'e'];
+
+    for(let f = 1; f <= FRETS; f++) {
+        const x = RIGHT - (f - 0.5) * fretW;
+        svg += `<text x="${x}" y="${TOP - 16}" font-size="12" fill="var(--muted)" font-weight="600" text-anchor="middle" font-family="var(--mono)">${f}</text>`;
+    }
+
+    // Fret markers background
+    const markerFrets = [3, 5, 7, 9, 12];
+    markerFrets.forEach(f => {
+        if(f <= FRETS) {
+            const x = RIGHT - (f - 0.5) * fretW;
+            if (f === 12) {
+                svg += `<circle cx="${x}" cy="${TOP + 1.5 * strH}" r="6" fill="#e5e7eb" />`;
+                svg += `<circle cx="${x}" cy="${TOP + 3.5 * strH}" r="6" fill="#e5e7eb" />`;
+            } else {
+                svg += `<circle cx="${x}" cy="${TOP + 2.5 * strH}" r="7" fill="#e5e7eb" />`;
+            }
+        }
+    });
+
+    for(let f = 0; f <= FRETS; f++) {
+        const x = RIGHT - f * fretW;
+        svg += `<line x1="${x}" y1="${TOP}" x2="${x}" y2="${BOTTOM}" stroke="${f===0 ? 'var(--text)' : '#d1d5db'}" stroke-width="${f===0 ? 4 : 2}" />`;
+    }
+
+    // Determine currently played notes
+    const currentFrets = [];
+    for (let i = 0; i < 6; i++) {
+        const el = document.getElementById('str' + i);
+        if (el) currentFrets.push(el.value.trim());
+    }
+
+    for(let i = 0; i < STRINGS; i++) {
+        const y = TOP + i * strH;
+        // i=0 is 'E' (thickest string, top), i=5 is 'e' (thinnest string, bottom)
+        const thickness = 1 + (5 - i) * 0.45; 
+        svg += `<line x1="${LEFT}" y1="${y}" x2="${RIGHT}" y2="${y}" stroke="#9ca3af" stroke-width="${thickness}" />`;
+        
+        const strIdx = i; // i=0 points to str0 (Low E), i=5 points to str5 (High e)
+        const isMuted = muteState[strIdx];
+        const currentFretStr = currentFrets[strIdx] || '';
+        const isOpen = !isMuted && (currentFretStr === '0' || currentFretStr === '');
+        
+        // String name / open click area
+        svg += `<g class="fret-cell" onclick="handleFretClick(${strIdx}, 0)">
+            <rect x="${RIGHT}" y="${y - strH/2}" width="40" height="${strH}" fill="transparent" />
+            <text x="${RIGHT + 25}" y="${y + 4}" font-size="14" fill="${isMuted ? 'var(--muted)' : 'var(--accent)'}" font-weight="700" text-anchor="middle" font-family="var(--mono)">${stringNames[i]}</text>
+        </g>`;
+
+        // Mute X click area
+        svg += `<g class="fret-cell" onclick="handleFretClick(${strIdx}, 'x')">
+            <rect x="${RIGHT + 40}" y="${y - strH/2}" width="30" height="${strH}" fill="transparent" />
+            <text x="${RIGHT + 55}" y="${y + 5}" font-size="14" fill="${isMuted ? '#ef4444' : 'var(--muted)'}" font-weight="700" text-anchor="middle" font-family="var(--mono)">✕</text>
+        </g>`;
+
+        if(isOpen && !isMuted) {
+            svg += `<circle cx="${RIGHT + 25}" cy="${y - 1}" r="10" fill="transparent" stroke="var(--accent)" stroke-width="2" style="pointer-events:none;" />`;
+        }
+
+        // Frets
+        for(let f = 1; f <= FRETS; f++) {
+            const cx = RIGHT - (f - 0.5) * fretW;
+            const isActive = !isMuted && currentFretStr === f.toString();
+            
+            svg += `<g class="fret-cell" onclick="handleFretClick(${strIdx}, ${f})">
+                <rect x="${RIGHT - f * fretW}" y="${y - strH/2}" width="${fretW}" height="${strH}" fill="transparent" />
+            </g>`;
+            
+            if (isActive) {
+                svg += `<circle cx="${cx}" cy="${y}" r="12" fill="var(--accent)" style="pointer-events:none;"/>`;
+            }
+        }
+    }
+
+    svg += '</svg>';
+    const container = document.getElementById('interactiveFretboardContainer');
+    if(container) container.innerHTML = svg;
+}
+
+function handleFretClick(strIdx, fretVal) {
+    const input = document.getElementById('str' + strIdx);
+    const muteBtn = document.getElementById('mute' + strIdx);
+    if(!input) return;
+    
+    if (fretVal === 'x') {
+        muteState[strIdx] = true;
+        input.value = 'x';
+        input.classList.add('muted');
+        if(muteBtn) muteBtn.classList.add('active');
+    } else {
+        muteState[strIdx] = false;
+        input.value = fretVal;
+        input.classList.remove('muted');
+        if(muteBtn) muteBtn.classList.remove('active');
+    }
+    
+    identifyChord();
+    renderInteractiveFretboard();
+}
+
 function onFretInput(strIdx, el) {
     const val = el.value.trim();
     if (val === 'x' || val === 'X') {
@@ -325,6 +538,7 @@ function onFretInput(strIdx, el) {
         document.getElementById('mute' + strIdx).classList.remove('active');
         muteState[strIdx] = false;
     }
+    renderInteractiveFretboard();
 }
 
 function toggleMute(strIdx) {
@@ -340,6 +554,8 @@ function toggleMute(strIdx) {
         input.classList.remove('muted');
         input.value = '';
     }
+    identifyChord();
+    renderInteractiveFretboard();
 }
 
 function setFrets(frets) {
@@ -359,6 +575,7 @@ function setFrets(frets) {
         }
     }
     identifyChord();
+    renderInteractiveFretboard();
 }
 
 function clearIdentifier() {
@@ -375,7 +592,18 @@ function clearIdentifier() {
             <div class="icon">🔍</div>
             <p>Ingresa las pisadas arriba para identificar el acorde</p>
         </div>`;
+    renderInteractiveFretboard();
 }
+
+// Initialize interactive fretboard on load
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('interactiveFretboardContainer')) {
+        renderInteractiveFretboard();
+    }
+    if (document.getElementById('generatorHorizontalFretboard')) {
+        renderGeneratorHorizontalFretboard(null);
+    }
+});
 
 function identifyChord() {
     const frets = [];

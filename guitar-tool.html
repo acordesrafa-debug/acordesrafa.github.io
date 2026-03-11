@@ -254,6 +254,8 @@
         .fretboard-interactive-wrap {
             overflow-x: auto;
             padding: 8px 0;
+            display: flex;
+            justify-content: center;
         }
 
         .fretboard-interactive {
@@ -264,9 +266,11 @@
 
         .fret-cell {
             cursor: pointer;
-            transition: opacity 0.15s;
         }
-        .fret-cell:hover rect { fill: rgba(99,91,255,0.12); }
+        .fret-cell rect {
+            transition: fill 0.15s;
+        }
+        .fret-cell:hover rect { fill: rgba(99,91,255,0.20); }
 
         /* ── Result ── */
         .result-primary {
@@ -524,6 +528,10 @@
                     <button class="preset-btn" onclick="setChord('Bb13')">Bb13 / SIb13</button>
                     <button class="preset-btn" onclick="setChord('Esus4')">Esus4 / MIsus4</button>
                 </div>
+                
+                <div class="fretboard-interactive-wrap" id="generatorHorizontalFretboard" style="margin-top: 24px;">
+                    <!-- SVG gets generated here -->
+                </div>
             </div>
 
             <!-- Result area -->
@@ -540,7 +548,11 @@
         <!-- ═══════════════════════════════════════════════ -->
         <div class="tool-panel" id="panel-identifier">
             <div class="card">
-                <p class="section-subtitle">Coloca las pisadas en el diapasón (0 = cuerda al aire, X = silenciada)</p>
+                <p class="section-subtitle">Coloca las pisadas en el diapasón interactivo o usa los campos abajo</p>
+
+                <div class="fretboard-interactive-wrap" id="interactiveFretboardContainer" style="margin-bottom: 20px;">
+                    <!-- SVG gets generated here -->
+                </div>
 
                 <div class="string-controls">
                     <!-- 6 string inputs, low E → high E -->
