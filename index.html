@@ -81,6 +81,11 @@
                 <li><a href="contacto.html">Contacto</a></li>
                 <li><a href="index.html#sobre-mi">Sobre mí</a></li>
             </ul>
+            <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </nav>
     </header>
 
@@ -90,40 +95,26 @@
             <div class="hero-content">
                 <h1>Domina la Guitarra con Facilidad</h1>
                 <p>Tutoriales simples explicados paso a paso para guitarristas de niveles básico-intermedio. Teoría, técnica y los mejores acordes.</p>
-                <div class="cta-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <div class="cta-group">
                     <a href="https://www.youtube.com/@AcordesRafa?sub_confirmation=1" target="_blank" class="btn btn-primary">Suscribirse</a>
                     <a href="https://www.youtube.com/@AcordesRafa/videos" target="_blank" class="btn btn-secondary">Canal</a>
                     <a href="https://www.youtube.com/playlist?list=PLcP06KJDtGisNlvb7KVI3iO7RO9RQSqSn" target="_blank" class="btn btn-secondary">Tutoriales</a>
                     <a href="https://www.youtube.com/playlist?list=PLcP06KJDtGisyEI--vtKOQm24H3XQ6oD-" target="_blank" class="btn btn-secondary">Covers</a>
                 </div>
 
-                <!-- FEATURED TOOL CARD -->
-                <a href="guitar-tool.html" style="text-decoration:none;display:block;margin-top:28px;">
-                    <div id="hero-tool-card" style="
-                        background: linear-gradient(135deg, rgba(99,91,255,0.08) 0%, rgba(162,89,255,0.08) 100%);
-                        border: 1.5px solid rgba(99,91,255,0.2);
-                        border-radius: 16px;
-                        padding: 18px 22px;
-                        display: flex;
-                        align-items: center;
-                        gap: 16px;
-                        max-width: 480px;
-                        transition: all 0.25s;
-                        cursor: pointer;
-                    " onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 32px rgba(99,91,255,0.18)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
-                        <div style="font-size:2.4rem;line-height:1;">🎸</div>
-                        <div>
-                            <div style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;color:#1a1f36;margin-bottom:3px;">Herramienta Interactiva de Acordes</div>
-                            <div style="font-size:0.82rem;color:#6b7280;">Genera digitaciones desde un nombre · Identifica acordes desde pisadas</div>
-                            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
-                                <span style="background:rgba(99,91,255,0.1);color:#635bff;border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">Cmaj7#11</span>
-                                <span style="background:rgba(99,91,255,0.1);color:#635bff;border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">F#m7b5</span>
-                                <span style="background:rgba(99,91,255,0.1);color:#635bff;border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">G7#9</span>
-                                <span style="background:rgba(16,185,129,0.12);color:#10b981;border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">Nuevo ✨</span>
-                            </div>
+                <a href="guitar-tool.html" class="hero-tool-card">
+                    <div class="tool-icon">🎸</div>
+                    <div class="tool-info">
+                        <h4>Herramienta Interactiva de Acordes</h4>
+                        <p>Genera digitaciones desde un nombre · Identifica acordes desde pisadas</p>
+                        <div class="tool-tags">
+                            <span class="tag">Cmaj7#11</span>
+                            <span class="tag">F#m7b5</span>
+                            <span class="tag">G7#9</span>
+                            <span class="tag tag-new">Nuevo ✨</span>
                         </div>
-                        <div style="margin-left:auto;color:#635bff;font-size:1.2rem;">→</div>
                     </div>
+                    <div class="tool-arrow">→</div>
                 </a>
             </div>
         </div>
@@ -138,24 +129,24 @@
                 
                 <div class="apps-grid" style="flex-wrap: wrap;">
                     <!-- App 1: Cancionero Popular -->
-                    <div style="text-align: center;">
-                        <span style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">Cancionero Popular</span>
+                    <div class="app-item">
+                        <span class="app-label">Cancionero Popular</span>
                         <a href="https://play.google.com/store/apps/details?id=com.acordesrafa.populares&pli=1" target="_blank">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="app-badge" alt="Play Store - Populares">
                         </a>
                     </div>
 
                     <!-- App 2: Acordes para Dios -->
-                    <div style="text-align: center;">
-                        <span style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">Acordes para Dios</span>
+                    <div class="app-item">
+                        <span class="app-label">Acordes para Dios</span>
                         <a href="https://play.google.com/store/apps/details?id=com.acordesrafa.cancionero" target="_blank">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="app-badge" alt="Play Store - Cancionero">
                         </a>
                     </div>
 
                     <!-- App Store placeholder -->
-                    <div style="text-align: center;">
-                        <span style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">iOS (Próximamente)</span>
+                    <div class="app-item">
+                        <span class="app-label">iOS (Próximamente)</span>
                         <a href="#">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" class="app-badge" alt="App Store">
                         </a>
@@ -259,7 +250,7 @@ Ya sea que seas principiante absoluto o busques pulir tus habilidades intermedia
             </div>
             <!-- Contador de Visitas -->
             <div id="visitas-container" style="margin-top: 15px; font-size: 0.8rem; color: var(--text-muted); opacity: 0.8;">
-                <span id="visitas-count">Cargando visitas...</span>
+                <span id="visitas-count"></span>
             </div>
         </div>
     </footer>
@@ -269,7 +260,7 @@ Ya sea que seas principiante absoluto o busques pulir tus habilidades intermedia
         fetch('https://api.counterapi.dev/v1/acordesrafa/index/up')
             .then(res => res.json())
             .then(data => {
-                document.getElementById('visitas-count').innerText = data.count.toLocaleString() + ' visitas';
+                document.getElementById('visitas-count').innerHTML = `<strong>${data.count.toLocaleString()}</strong> visitas desde 2026`;
             })
             .catch(err => {
                 console.error('Error al cargar visitas:', err);
@@ -288,6 +279,23 @@ Ya sea que seas principiante absoluto o busques pulir tus habilidades intermedia
     </div>
 
     <script>
+        // Hamburger Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
         // Tabbed navigation handling
         function showSection(targetId) {
             const section = document.getElementById(targetId);
@@ -308,7 +316,7 @@ Ya sea que seas principiante absoluto o busques pulir tus habilidades intermedia
                 const href = this.getAttribute('href');
                 
                 // If it's a link to a section on THIS page
-                if (href.includes('#')) {
+                if (href.includes('#') && (href.startsWith('index.html') || href.startsWith('#'))) {
                     const targetId = href.split('#')[1];
                     if (document.getElementById(targetId)) {
                         e.preventDefault();

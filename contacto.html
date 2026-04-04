@@ -77,6 +77,11 @@
                 <li><a href="contacto.html" class="active">Contacto</a></li>
                 <li><a href="index.html#sobre-mi">Sobre mí</a></li>
             </ul>
+            <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </nav>
     </header>
 
@@ -120,10 +125,28 @@
     </footer>
 
     <script>
+        // Hamburger Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Visits counter
         fetch('https://api.counterapi.dev/v1/acordesrafa/contacto/up')
             .then(res => res.json())
             .then(data => {
-                document.getElementById('visitas-count').innerText = data.count.toLocaleString() + ' visitas';
+                document.getElementById('visitas-count').innerHTML = `<strong>${data.count.toLocaleString()}</strong> visitas desde 2026`;
             })
             .catch(err => {
                 console.error('Error al cargar visitas:', err);

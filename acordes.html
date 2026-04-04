@@ -324,6 +324,11 @@
                 <li><a href="contacto.html">Contacto</a></li>
                 <li><a href="index.html#sobre-mi">Sobre mí</a></li>
             </ul>
+            <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </nav>
     </header>
 
@@ -394,7 +399,7 @@
             </div>
             <!-- Contador de Visitas -->
             <div id="visitas-container" style="margin-top: 15px; font-size: 0.8rem; color: var(--text-muted); opacity: 0.8;">
-                <span id="visitas-count">Cargando visitas...</span>
+                <span id="visitas-count"></span>
             </div>
         </div>
     </footer>
@@ -404,7 +409,7 @@
         fetch('https://api.counterapi.dev/v1/acordesrafa/acordes/up')
             .then(res => res.json())
             .then(data => {
-                document.getElementById('visitas-count').innerText = data.count.toLocaleString() + ' visitas';
+                document.getElementById('visitas-count').innerHTML = `<strong>${data.count.toLocaleString()}</strong> visitas desde 2026`;
             })
             .catch(err => {
                 console.error('Error al cargar visitas:', err);
@@ -798,6 +803,23 @@
             modal.classList.remove('active');
             if (validationInterval) clearInterval(validationInterval);
         }
+
+        // Hamburger Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
 
         // Cerrar modal al hacer clic fuera
         window.onclick = function(event) {
